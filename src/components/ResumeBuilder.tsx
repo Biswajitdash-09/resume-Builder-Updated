@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Moon, Sun, Download, Save, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -81,8 +80,22 @@ export const ResumeBuilder = () => {
     });
   };
 
-  const handleExportPDF = () => {
-    exportToPDF(resumeData);
+  const handleExportPDF = async () => {
+    try {
+      console.log('Export PDF clicked');
+      await exportToPDF(resumeData);
+      toast({
+        title: "PDF Downloaded",
+        description: "Your resume has been downloaded successfully!",
+      });
+    } catch (error) {
+      console.error('PDF export failed:', error);
+      toast({
+        title: "Export Failed",
+        description: "There was an error downloading your resume. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const updateResumeData = (section: keyof ResumeData, data: any) => {

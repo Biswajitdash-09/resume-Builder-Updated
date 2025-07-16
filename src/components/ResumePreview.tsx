@@ -1,4 +1,3 @@
-
 import React, { forwardRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink } from 'lucide-react';
@@ -26,7 +25,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
     };
 
     return (
-      <Card className="p-8 max-w-4xl mx-auto bg-white text-black" ref={ref}>
+      <Card className="p-8 max-w-4xl mx-auto bg-white text-black resume-preview" ref={ref}>
         <div className="space-y-6">
           {/* Header */}
           <header className="text-center border-b border-gray-300 pb-4">

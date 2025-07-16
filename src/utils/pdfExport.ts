@@ -11,24 +11,30 @@ export const exportToPDF = async (data: ResumeData) => {
   }
 
   const opt = {
-    margin: 0.5,
+    margin: [0.5, 0.5, 0.5, 0.5],
     filename: `${data.personalInfo.firstName}_${data.personalInfo.lastName}_Resume.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { 
       scale: 2,
       useCORS: true,
-      letterRendering: true
+      letterRendering: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff'
     },
     jsPDF: { 
       unit: 'in', 
       format: 'letter', 
-      orientation: 'portrait' 
+      orientation: 'portrait',
+      compress: true
     }
   };
 
   try {
+    console.log('Starting PDF generation...');
     await html2pdf().set(opt).from(element).save();
+    console.log('PDF generated successfully');
   } catch (error) {
     console.error('Error generating PDF:', error);
+    throw error;
   }
 };
