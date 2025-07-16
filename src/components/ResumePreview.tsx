@@ -45,19 +45,19 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
                 {data.personalInfo.email && (
                   <div className="flex items-center gap-1">
                     <Mail className="h-3 w-3 flex-shrink-0" />
-                    <span>{data.personalInfo.email}</span>
+                    <span className="whitespace-nowrap">{data.personalInfo.email}</span>
                   </div>
                 )}
                 {data.personalInfo.phone && (
                   <div className="flex items-center gap-1">
                     <Phone className="h-3 w-3 flex-shrink-0" />
-                    <span>{data.personalInfo.phone}</span>
+                    <span className="whitespace-nowrap">{data.personalInfo.phone}</span>
                   </div>
                 )}
                 {data.personalInfo.address && (
                   <div className="flex items-center gap-1">
                     <MapPin className="h-3 w-3 flex-shrink-0" />
-                    <span>{data.personalInfo.address}</span>
+                    <span className="whitespace-nowrap">{data.personalInfo.address}</span>
                   </div>
                 )}
               </div>
@@ -66,13 +66,27 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
                   {data.personalInfo.linkedin && (
                     <div className="flex items-center gap-1">
                       <Linkedin className="h-3 w-3 flex-shrink-0" />
-                      <span>{data.personalInfo.linkedin}</span>
+                      <a 
+                        href={data.personalInfo.linkedin.startsWith('http') ? data.personalInfo.linkedin : `https://${data.personalInfo.linkedin}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline whitespace-nowrap"
+                      >
+                        {data.personalInfo.linkedin}
+                      </a>
                     </div>
                   )}
                   {data.personalInfo.github && (
                     <div className="flex items-center gap-1">
                       <Github className="h-3 w-3 flex-shrink-0" />
-                      <span>{data.personalInfo.github}</span>
+                      <a 
+                        href={data.personalInfo.github.startsWith('http') ? data.personalInfo.github : `https://${data.personalInfo.github}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline whitespace-nowrap"
+                      >
+                        {data.personalInfo.github}
+                      </a>
                     </div>
                   )}
                 </div>
@@ -169,8 +183,26 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
                           <div className="text-right">
                             <p className="text-xs text-gray-600">{formatDateRange(project.startDate, project.endDate)}</p>
                             <div className="flex gap-1 mt-1">
-                              {project.link && <ExternalLink className="h-3 w-3" />}
-                              {project.github && <Github className="h-3 w-3" />}
+                              {project.link && (
+                                <a 
+                                  href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              )}
+                              {project.github && (
+                                <a 
+                                  href={project.github.startsWith('http') ? project.github : `https://${project.github}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  <Github className="h-3 w-3" />
+                                </a>
+                              )}
                             </div>
                           </div>
                         </div>
