@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Moon, Sun, Download, Save, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { SummaryForm } from './forms/SummaryForm';
 import { EducationForm } from './forms/EducationForm';
 import { ExperienceForm } from './forms/ExperienceForm';
 import { SkillsForm } from './forms/SkillsForm';
+import { ProgrammingLanguagesForm } from './forms/ProgrammingLanguagesForm';
 import { ProjectsForm } from './forms/ProjectsForm';
 import { CertificationsForm } from './forms/CertificationsForm';
 import { LanguagesForm } from './forms/LanguagesForm';
@@ -28,12 +30,14 @@ export const ResumeBuilder = () => {
       phone: '',
       linkedin: '',
       github: '',
-      address: ''
+      address: '',
+      profilePicture: ''
     },
     summary: '',
     education: [],
     experience: [],
     skills: [],
+    programmingLanguages: [],
     projects: [],
     certifications: [],
     languages: [],
@@ -47,7 +51,16 @@ export const ResumeBuilder = () => {
     const savedData = localStorage.getItem('resumeData');
     if (savedData) {
       try {
-        setResumeData(JSON.parse(savedData));
+        const parsedData = JSON.parse(savedData);
+        // Ensure backward compatibility by adding programmingLanguages if it doesn't exist
+        if (!parsedData.programmingLanguages) {
+          parsedData.programmingLanguages = [];
+        }
+        // Ensure profilePicture exists in personalInfo
+        if (!parsedData.personalInfo.profilePicture) {
+          parsedData.personalInfo.profilePicture = '';
+        }
+        setResumeData(parsedData);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -179,6 +192,13 @@ export const ResumeBuilder = () => {
               <SkillsForm
                 data={resumeData.skills}
                 onChange={(data) => updateResumeData('skills', data)}
+              />
+            </Card>
+
+            <Card className="p-6">
+              <ProgrammingLanguagesForm
+                data={resumeData.programmingLanguages}
+                onChange={(data) => updateResumeData('programmingLanguages', data)}
               />
             </Card>
 

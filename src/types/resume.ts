@@ -7,6 +7,7 @@ export interface PersonalInfo {
   linkedin: string;
   github: string;
   address: string;
+  profilePicture?: string;
 }
 
 export interface Education {
@@ -35,7 +36,13 @@ export interface Skill {
   id: string;
   name: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
-  category: 'Technical' | 'Soft' | 'Language' | 'Other';
+  category: 'Technical' | 'Soft' | 'Other';
+}
+
+export interface ProgrammingLanguage {
+  id: string;
+  name: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
 }
 
 export interface Project {
@@ -76,6 +83,7 @@ export interface ResumeData {
   education: Education[];
   experience: Experience[];
   skills: Skill[];
+  programmingLanguages: ProgrammingLanguage[];
   projects: Project[];
   certifications: Certification[];
   languages: Language[];
