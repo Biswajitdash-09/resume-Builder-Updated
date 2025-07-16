@@ -38,43 +38,45 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
               />
             )}
             <div className="flex-grow">
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 {data.personalInfo.firstName} {data.personalInfo.lastName}
               </h1>
-              <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600">
                 {data.personalInfo.email && (
                   <div className="flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    {data.personalInfo.email}
+                    <Mail className="h-3 w-3 flex-shrink-0" />
+                    <span>{data.personalInfo.email}</span>
                   </div>
                 )}
                 {data.personalInfo.phone && (
                   <div className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    {data.personalInfo.phone}
+                    <Phone className="h-3 w-3 flex-shrink-0" />
+                    <span>{data.personalInfo.phone}</span>
                   </div>
                 )}
                 {data.personalInfo.address && (
                   <div className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {data.personalInfo.address}
+                    <MapPin className="h-3 w-3 flex-shrink-0" />
+                    <span>{data.personalInfo.address}</span>
                   </div>
                 )}
               </div>
-              <div className="flex flex-wrap gap-3 text-xs text-gray-600 mt-1">
-                {data.personalInfo.linkedin && (
-                  <div className="flex items-center gap-1">
-                    <Linkedin className="h-3 w-3" />
-                    {data.personalInfo.linkedin}
-                  </div>
-                )}
-                {data.personalInfo.github && (
-                  <div className="flex items-center gap-1">
-                    <Github className="h-3 w-3" />
-                    {data.personalInfo.github}
-                  </div>
-                )}
-              </div>
+              {(data.personalInfo.linkedin || data.personalInfo.github) && (
+                <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600 mt-1">
+                  {data.personalInfo.linkedin && (
+                    <div className="flex items-center gap-1">
+                      <Linkedin className="h-3 w-3 flex-shrink-0" />
+                      <span>{data.personalInfo.linkedin}</span>
+                    </div>
+                  )}
+                  {data.personalInfo.github && (
+                    <div className="flex items-center gap-1">
+                      <Github className="h-3 w-3 flex-shrink-0" />
+                      <span>{data.personalInfo.github}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </header>
 
