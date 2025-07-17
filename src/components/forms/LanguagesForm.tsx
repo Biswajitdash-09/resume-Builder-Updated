@@ -47,17 +47,17 @@ export const LanguagesForm: React.FC<LanguagesFormProps> = ({ data, onChange }) 
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Spoken Languages</h3>
+      <h3 className="text-lg font-semibold">Languages</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
-          <Label htmlFor="languageName">Spoken Language</Label>
+          <Label htmlFor="languageName">Language</Label>
           <Input
             id="languageName"
             value={newLanguage}
             onChange={(e) => setNewLanguage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="e.g., English, Spanish, Hindi, Mandarin"
+            placeholder="e.g., Spanish, French, Mandarin"
           />
         </div>
         
@@ -79,7 +79,7 @@ export const LanguagesForm: React.FC<LanguagesFormProps> = ({ data, onChange }) 
 
       <Button onClick={addLanguage} size="sm">
         <Plus className="h-4 w-4 mr-2" />
-        Add Spoken Language
+        Add Language
       </Button>
 
       <div className="space-y-2">
