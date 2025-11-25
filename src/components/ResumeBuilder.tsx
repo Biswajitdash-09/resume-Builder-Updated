@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Moon, Sun, Download, Save, Eye, EyeOff, Upload, FileJson, Trash2 } from 'lucide-react';
+import { Moon, Sun, Download, Save, Eye, EyeOff, Upload, FileJson, Trash2, Palette, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +24,8 @@ import { CertificationsForm } from './forms/CertificationsForm';
 import { LanguagesForm } from './forms/LanguagesForm';
 import { InterestsForm } from './forms/InterestsForm';
 import { ResumePreview } from './ResumePreview';
+import { TemplateSelector } from './TemplateSelector';
+import { ColorCustomizer } from './ColorCustomizer';
 import { ResumeData } from '../types/resume';
 import { exportToPDF } from '../utils/pdfExport';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +33,15 @@ export const ResumeBuilder = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [showClearDialog, setShowClearDialog] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<'professional' | 'modern' | 'minimal'>('professional');
+  const [colorTheme, setColorTheme] = useState({
+    primary: '#2563eb',
+    accent: '#3b82f6',
+    textPrimary: '#1e293b',
+    textSecondary: '#64748b',
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
@@ -220,7 +231,9 @@ export const ResumeBuilder = () => {
       [section]: data
     }));
   };
-  return <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+
+  return (
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 shadow-sm transition-all duration-300">
         <div className="container mx-auto px-4 py-4">
@@ -239,6 +252,38 @@ export const ResumeBuilder = () => {
                 {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
               
+              {/* Template & Color Customizer */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="hidden sm:inline-flex transition-all duration-200 hover:scale-105"
+                  >
+                    <Palette className="h-4 w-4 mr-2" />
+                    Customize
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="overflow-y-auto w-full sm:max-w-lg">
+                  <SheetHeader>
+                    <SheetTitle>Customize Resume</SheetTitle>
+                    <SheetDescription>
+                      Choose a template and customize colors
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="mt-6 space-y-6">
+                    <TemplateSelector 
+                      selectedTemplate={selectedTemplate}
+                      onSelectTemplate={setSelectedTemplate}
+                    />
+                    <ColorCustomizer 
+                      theme={colorTheme}
+                      onThemeChange={setColorTheme}
+                    />
+                  </div>
+                </SheetContent>
+              </Sheet>
+
               {/* Import Resume */}
               <input
                 ref={fileInputRef}
@@ -356,7 +401,7 @@ export const ResumeBuilder = () => {
 
           {/* Preview Section */}
           <div className={`sticky top-24 ${!showPreview ? 'block' : 'hidden'} lg:block animate-slide-in-right`}>
-            <ResumePreview data={resumeData} />
+            <ResumePreview data={resumeData} template={selectedTemplate} theme={colorTheme} />
           </div>
         </div>
       </div>
@@ -379,5 +424,6 @@ export const ResumeBuilder = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>;
+    </div>
+  );
 };
