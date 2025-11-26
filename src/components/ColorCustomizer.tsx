@@ -10,6 +10,9 @@ export interface ColorTheme {
   accent: string;
   textPrimary: string;
   textSecondary: string;
+  borderStyle: 'none' | 'thin' | 'medium' | 'thick';
+  borderColor: string;
+  borderRadius: number;
 }
 
 interface ColorCustomizerProps {
@@ -25,6 +28,9 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       accent: '#3b82f6',
       textPrimary: '#1e293b',
       textSecondary: '#64748b',
+      borderStyle: 'thin',
+      borderColor: '#e2e8f0',
+      borderRadius: 8,
     },
   },
   {
@@ -34,6 +40,9 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       accent: '#a78bfa',
       textPrimary: '#1e1b4b',
       textSecondary: '#6366f1',
+      borderStyle: 'medium',
+      borderColor: '#ddd6fe',
+      borderRadius: 12,
     },
   },
   {
@@ -43,6 +52,9 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       accent: '#10b981',
       textPrimary: '#064e3b',
       textSecondary: '#047857',
+      borderStyle: 'thin',
+      borderColor: '#d1fae5',
+      borderRadius: 8,
     },
   },
   {
@@ -52,6 +64,9 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       accent: '#fb923c',
       textPrimary: '#7c2d12',
       textSecondary: '#c2410c',
+      borderStyle: 'thick',
+      borderColor: '#fed7aa',
+      borderRadius: 16,
     },
   },
 ];
@@ -60,7 +75,7 @@ export const ColorCustomizer: React.FC<ColorCustomizerProps> = ({
   theme,
   onThemeChange,
 }) => {
-  const handleColorChange = (key: keyof ColorTheme, value: string) => {
+  const handleColorChange = (key: keyof ColorTheme, value: string | number) => {
     onThemeChange({ ...theme, [key]: value });
   };
 
@@ -183,6 +198,65 @@ export const ColorCustomizer: React.FC<ColorCustomizerProps> = ({
               className="flex-1 text-xs"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Border Customization */}
+      <div className="space-y-4 pt-4 border-t">
+        <Label className="text-sm font-medium">Border Options</Label>
+        
+        <div className="space-y-2">
+          <Label htmlFor="border-style" className="text-sm">
+            Border Style
+          </Label>
+          <select
+            id="border-style"
+            value={theme.borderStyle}
+            onChange={(e) => handleColorChange('borderStyle', e.target.value as any)}
+            className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm"
+          >
+            <option value="none">None</option>
+            <option value="thin">Thin (1px)</option>
+            <option value="medium">Medium (2px)</option>
+            <option value="thick">Thick (4px)</option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="border-color" className="text-sm">
+            Border Color
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="border-color"
+              type="color"
+              value={theme.borderColor}
+              onChange={(e) => handleColorChange('borderColor', e.target.value)}
+              className="w-12 h-10 p-1 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={theme.borderColor}
+              onChange={(e) => handleColorChange('borderColor', e.target.value)}
+              className="flex-1 text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="border-radius" className="text-sm">
+            Border Radius: {theme.borderRadius}px
+          </Label>
+          <input
+            id="border-radius"
+            type="range"
+            min="0"
+            max="32"
+            step="2"
+            value={theme.borderRadius}
+            onChange={(e) => handleColorChange('borderRadius', parseInt(e.target.value))}
+            className="w-full"
+          />
         </div>
       </div>
     </div>

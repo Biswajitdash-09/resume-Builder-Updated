@@ -1,7 +1,6 @@
 import React from 'react';
-import { ResumeData } from '@/types/resume';
+import { ResumeData, ColorTheme } from '@/types/resume';
 import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink } from 'lucide-react';
-import { ColorTheme } from '../ColorCustomizer';
 
 interface MinimalTemplateProps {
   data: ResumeData;
@@ -9,8 +8,18 @@ interface MinimalTemplateProps {
 }
 
 export const MinimalTemplate: React.FC<MinimalTemplateProps> = ({ data, theme }) => {
+  const getBorderStyle = () => {
+    const widths = { none: '0', thin: '1px', medium: '2px', thick: '4px' };
+    return {
+      borderWidth: widths[theme.borderStyle],
+      borderColor: theme.borderColor,
+      borderRadius: `${theme.borderRadius}px`,
+      borderStyle: 'solid'
+    };
+  };
+
   return (
-    <div className="bg-white p-8 max-w-3xl mx-auto" style={{ color: theme.textPrimary }}>
+    <div className="resume-preview bg-white p-8 max-w-3xl mx-auto" style={{ color: theme.textPrimary, width: '8.5in', minHeight: '11in', ...getBorderStyle() }}>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-5xl font-light mb-2 tracking-tight" style={{ color: theme.primary }}>

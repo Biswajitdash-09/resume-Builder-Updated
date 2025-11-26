@@ -26,21 +26,27 @@ import { InterestsForm } from './forms/InterestsForm';
 import { ResumePreview } from './ResumePreview';
 import { TemplateSelector } from './TemplateSelector';
 import { ColorCustomizer } from './ColorCustomizer';
+import { ColorTheme } from '../types/resume';
 import { ResumeData } from '../types/resume';
 import { exportToPDF } from '../utils/pdfExport';
 import { useToast } from '@/hooks/use-toast';
+import { ImportResumeDialog } from './ImportResumeDialog';
+import { ExportDropdown } from './ExportDropdown';
 export const ResumeBuilder = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<'professional' | 'modern' | 'minimal'>('professional');
-  const [colorTheme, setColorTheme] = useState({
+  const [selectedTemplate, setSelectedTemplate] = useState<'professional' | 'modern' | 'minimal' | 'ats'>('professional');
+  const [colorTheme, setColorTheme] = useState<ColorTheme>({
     primary: '#2563eb',
     accent: '#3b82f6',
     textPrimary: '#1e293b',
     textSecondary: '#64748b',
+    borderStyle: 'thin',
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [resumeData, setResumeData] = useState<ResumeData>({
@@ -147,51 +153,18 @@ export const ResumeBuilder = () => {
     }
   };
 
-  const handleImportResume = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!file.name.endsWith('.json')) {
-      toast({
-        title: "Invalid File",
-        description: "Please upload a JSON file.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedData = JSON.parse(e.target?.result as string);
-        
-        // Validate the structure
-        if (!importedData.personalInfo || !Array.isArray(importedData.education)) {
-          throw new Error('Invalid resume data structure');
-        }
-
-        setResumeData(importedData);
-        localStorage.setItem('resumeData', JSON.stringify(importedData));
-        
-        toast({
-          title: "Resume Imported",
-          description: "Your resume has been imported successfully!"
-        });
-      } catch (error) {
-        console.error('Import failed:', error);
-        toast({
-          title: "Import Failed",
-          description: "Invalid JSON file or data structure.",
-          variant: "destructive"
-        });
-      }
+  const handleImportResume = (importedData: Partial<ResumeData>) => {
+    // Merge imported data with existing data structure
+    const mergedData = {
+      ...resumeData,
+      ...importedData,
+      personalInfo: {
+        ...resumeData.personalInfo,
+        ...importedData.personalInfo,
+      },
     };
-    reader.readAsText(file);
-    
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    setResumeData(mergedData as ResumeData);
+    localStorage.setItem('resumeData', JSON.stringify(mergedData));
   };
 
   const handleClearAll = () => {
@@ -285,65 +258,17 @@ export const ResumeBuilder = () => {
               </Sheet>
 
               {/* Import Resume */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleImportResume}
-                className="hidden"
-              />
-              <Button 
-                onClick={() => fileInputRef.current?.click()} 
-                variant="outline" 
-                size="sm"
-                className="hidden sm:inline-flex transition-all duration-200 hover:scale-105"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Import
-              </Button>
+              <ImportResumeDialog onImport={handleImportResume} />
               
-              {/* Export JSON */}
-              <Button 
-                onClick={handleExportJSON} 
-                variant="outline" 
-                size="sm"
-                className="hidden sm:inline-flex transition-all duration-200 hover:scale-105"
-              >
-                <FileJson className="h-4 w-4 mr-2" />
-                Export JSON
-              </Button>
+              {/* Export Dropdown */}
+              <ExportDropdown data={resumeData} />
               
-              {/* Clear All */}
-              <Button 
-                onClick={() => setShowClearDialog(true)} 
-                variant="outline" 
-                size="sm"
-                className="hidden sm:inline-flex transition-all duration-200 hover:scale-105 hover:bg-destructive/10"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear All
-              </Button>
               
               {/* Save Draft */}
-              <Button 
-                onClick={handleSave} 
-                variant="outline" 
-                size="sm"
-                className="transition-all duration-200 hover:scale-105"
+              <Button
               >
                 <Save className="h-4 w-4 mr-2" />
                 Save
-              </Button>
-              
-              {/* Download PDF */}
-              <Button 
-                onClick={handleExportPDF} 
-                size="sm"
-                disabled={isExporting}
-                className="transition-all duration-200 hover:scale-105 relative overflow-hidden"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                {isExporting ? 'Exporting...' : 'PDF'}
               </Button>
               
               {/* Dark Mode Toggle */}

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Check } from 'lucide-react';
 
-export type TemplateType = 'professional' | 'modern' | 'minimal';
+export type TemplateType = 'professional' | 'modern' | 'minimal' | 'ats';
 
 interface TemplateSelectorProps {
   selectedTemplate: TemplateType;
@@ -18,8 +18,15 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
     {
       id: 'professional' as TemplateType,
       name: 'Professional',
-      description: 'ATS-friendly, traditional layout',
+      description: 'Traditional, elegant layout',
       preview: 'Classic single-column design',
+    },
+    {
+      id: 'ats' as TemplateType,
+      name: 'ATS Optimized',
+      description: 'Applicant Tracking System friendly',
+      preview: 'Maximum compatibility',
+      badge: 'Recommended',
     },
     {
       id: 'modern' as TemplateType,
@@ -38,7 +45,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Resume Templates</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {templates.map((template) => (
           <Card
             key={template.id}
@@ -50,8 +57,15 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
             onClick={() => onSelectTemplate(template.id)}
           >
             <div className="flex items-start justify-between mb-2">
-              <div>
-                <h4 className="font-semibold">{template.name}</h4>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold">{template.name}</h4>
+                  {(template as any).badge && (
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                      {(template as any).badge}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {template.description}
                 </p>

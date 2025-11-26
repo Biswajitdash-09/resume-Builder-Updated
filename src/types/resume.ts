@@ -70,6 +70,16 @@ export interface Interest {
   name: string;
 }
 
+export interface ColorTheme {
+  primary: string;
+  accent: string;
+  textPrimary: string;
+  textSecondary: string;
+  borderStyle: 'none' | 'thin' | 'medium' | 'thick';
+  borderColor: string;
+  borderRadius: number;
+}
+
 export interface ResumeData {
   personalInfo: PersonalInfo;
   summary: string;
