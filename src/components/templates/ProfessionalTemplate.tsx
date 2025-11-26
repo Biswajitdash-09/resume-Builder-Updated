@@ -1,7 +1,6 @@
 import React from 'react';
-import { ResumeData } from '@/types/resume';
+import { ResumeData, ColorTheme } from '@/types/resume';
 import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink } from 'lucide-react';
-import { ColorTheme } from '../ColorCustomizer';
 
 interface ProfessionalTemplateProps {
   data: ResumeData;
@@ -9,8 +8,18 @@ interface ProfessionalTemplateProps {
 }
 
 export const ProfessionalTemplate: React.FC<ProfessionalTemplateProps> = ({ data, theme }) => {
+  const getBorderStyle = () => {
+    const widths = { none: '0', thin: '1px', medium: '2px', thick: '4px' };
+    return {
+      borderWidth: widths[theme.borderStyle],
+      borderColor: theme.borderColor,
+      borderRadius: `${theme.borderRadius}px`,
+      borderStyle: 'solid'
+    };
+  };
+
   return (
-    <div className="bg-white text-gray-900 p-8 shadow-lg rounded-lg max-w-4xl mx-auto" style={{ color: theme.textPrimary }}>
+    <div className="resume-preview bg-white text-gray-900 p-8 shadow-lg max-w-4xl mx-auto" style={{ color: theme.textPrimary, width: '8.5in', minHeight: '11in', ...getBorderStyle() }}>
       {/* Header */}
       <div className="text-center mb-6 pb-6 border-b-2" style={{ borderColor: theme.primary }}>
         <h1 className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>

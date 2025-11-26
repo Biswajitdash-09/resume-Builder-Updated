@@ -1,7 +1,6 @@
 import React from 'react';
-import { ResumeData } from '@/types/resume';
+import { ResumeData, ColorTheme } from '@/types/resume';
 import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink } from 'lucide-react';
-import { ColorTheme } from '../ColorCustomizer';
 
 interface ModernTemplateProps {
   data: ResumeData;
@@ -9,8 +8,18 @@ interface ModernTemplateProps {
 }
 
 export const ModernTemplate: React.FC<ModernTemplateProps> = ({ data, theme }) => {
+  const getBorderStyle = () => {
+    const widths = { none: '0', thin: '1px', medium: '2px', thick: '4px' };
+    return {
+      borderWidth: widths[theme.borderStyle],
+      borderColor: theme.borderColor,
+      borderRadius: `${theme.borderRadius}px`,
+      borderStyle: 'solid'
+    };
+  };
+
   return (
-    <div className="bg-white text-gray-900 shadow-lg rounded-lg max-w-4xl mx-auto overflow-hidden">
+    <div className="resume-preview bg-white text-gray-900 shadow-lg max-w-4xl mx-auto overflow-hidden" style={{ width: '8.5in', minHeight: '11in', ...getBorderStyle() }}>
       <div className="grid grid-cols-3 gap-0">
         {/* Left Sidebar */}
         <div className="col-span-1 p-6" style={{ backgroundColor: theme.primary, color: 'white' }}>
