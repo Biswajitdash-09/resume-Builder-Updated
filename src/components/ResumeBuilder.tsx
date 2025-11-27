@@ -265,10 +265,20 @@ export const ResumeBuilder = () => {
               
               
               {/* Save Draft */}
-              <Button
-              >
+              <Button onClick={handleSave} className="transition-all duration-200 hover:scale-105">
                 <Save className="h-4 w-4 mr-2" />
                 Save
+              </Button>
+              
+              {/* Clear All */}
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => setShowClearDialog(true)}
+                className="transition-all duration-200 hover:scale-105"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear
               </Button>
               
               {/* Dark Mode Toggle */}
