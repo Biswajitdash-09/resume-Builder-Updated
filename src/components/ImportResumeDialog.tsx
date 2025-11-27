@@ -3,9 +3,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, FileText, FileJson } from 'lucide-react';
+import { Upload, FileText, FileJson, Loader2 } from 'lucide-react';
 import { ResumeData } from '../types/resume';
-import { parseTextResume, validateResumeData } from '../utils/resumeParser';
+import { parseTextResume, parsePdfResume, parseDocxResume, validateResumeData } from '../utils/resumeParser';
 import { useToast } from '@/hooks/use-toast';
 
 interface ImportResumeDialogProps {
@@ -15,42 +15,72 @@ interface ImportResumeDialogProps {
 export const ImportResumeDialog: React.FC<ImportResumeDialogProps> = ({ onImport }) => {
   const [open, setOpen] = useState(false);
   const [textContent, setTextContent] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        
-        if (file.name.endsWith('.json')) {
-          const data = JSON.parse(content);
-          if (validateResumeData(data)) {
-            onImport(data);
-            toast({ title: "Success", description: "Resume imported from JSON!" });
-            setOpen(false);
-          } else {
-            throw new Error('Invalid resume data structure');
-          }
-        } else if (file.name.endsWith('.txt')) {
-          const parsed = parseTextResume(content);
-          onImport(parsed);
-          toast({ title: "Success", description: "Resume imported from text file!" });
+    setIsLoading(true);
+    
+    try {
+      const fileName = file.name.toLowerCase();
+      
+      if (fileName.endsWith('.json')) {
+        const content = await file.text();
+        const data = JSON.parse(content);
+        if (validateResumeData(data)) {
+          onImport(data);
+          toast({ title: "Success", description: "Resume imported from JSON!" });
           setOpen(false);
+        } else {
+          throw new Error('Invalid resume data structure');
         }
-      } catch (error) {
+      } else if (fileName.endsWith('.txt')) {
+        const content = await file.text();
+        const parsed = parseTextResume(content);
+        onImport(parsed);
+        toast({ title: "Success", description: "Resume imported from text file!" });
+        setOpen(false);
+      } else if (fileName.endsWith('.pdf')) {
+        const parsed = await parsePdfResume(file);
+        onImport(parsed);
+        toast({ 
+          title: "PDF Imported", 
+          description: "Resume data extracted from PDF. Please review and complete any missing fields." 
+        });
+        setOpen(false);
+      } else if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
+        const parsed = await parseDocxResume(file);
+        onImport(parsed);
+        toast({ 
+          title: "DOCX Imported", 
+          description: "Resume data extracted from Word document. Please review and complete any missing fields." 
+        });
+        setOpen(false);
+      } else {
         toast({
-          title: "Import Failed",
-          description: "Could not parse the file. Please check the format.",
+          title: "Unsupported Format",
+          description: "Please upload a PDF, DOCX, JSON, or TXT file.",
           variant: "destructive"
         });
       }
-    };
-    reader.readAsText(file);
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        title: "Import Failed",
+        description: "Could not parse the file. Please check the format and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handlePasteImport = () => {
@@ -98,7 +128,7 @@ export const ImportResumeDialog: React.FC<ImportResumeDialogProps> = ({ onImport
         <DialogHeader>
           <DialogTitle>Import Resume</DialogTitle>
           <DialogDescription>
-            Import your resume from JSON, text file, or paste your resume content
+            Import your resume from PDF, Word, JSON, text file, or paste content directly
           </DialogDescription>
         </DialogHeader>
 
@@ -119,21 +149,43 @@ export const ImportResumeDialog: React.FC<ImportResumeDialogProps> = ({ onImport
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".json,.txt"
+                accept=".pdf,.docx,.doc,.json,.txt"
                 onChange={handleFileImport}
                 className="hidden"
+                disabled={isLoading}
               />
-              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-4">
-                Supported formats: JSON, TXT
-              </p>
-              <Button onClick={() => fileInputRef.current?.click()}>
-                Choose File
-              </Button>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-12 w-12 mx-auto mb-4 text-primary animate-spin" />
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Parsing your resume...
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Supported formats: PDF, DOCX, JSON, TXT
+                  </p>
+                  <Button onClick={() => fileInputRef.current?.click()}>
+                    Choose File
+                  </Button>
+                </>
+              )}
             </div>
             <div className="text-xs text-muted-foreground space-y-1">
+              <p>• <strong>PDF</strong>: Extract text from PDF resumes</p>
+              <p>• <strong>DOCX</strong>: Import from Microsoft Word documents</p>
               <p>• <strong>JSON</strong>: Full resume data structure (from previous exports)</p>
-              <p>• <strong>TXT</strong>: Plain text resume (will attempt to parse sections)</p>
+              <p>• <strong>TXT</strong>: Plain text resume (will parse sections automatically)</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
+              <p className="font-medium mb-1">💡 Tips for better parsing:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Use clear section headers (Experience, Education, Skills)</li>
+                <li>Include contact information at the top</li>
+                <li>Format dates consistently (e.g., Jan 2020 - Present)</li>
+              </ul>
             </div>
           </TabsContent>
 
