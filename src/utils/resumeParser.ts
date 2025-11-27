@@ -1,4 +1,45 @@
 import { ResumeData } from '../types/resume';
+import * as pdfjsLib from 'pdfjs-dist';
+import mammoth from 'mammoth';
+
+// Set up PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+export const parsePdfResume = async (file: File): Promise<Partial<ResumeData>> => {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = '';
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ');
+      fullText += pageText + '\n';
+    }
+    
+    return parseTextResume(fullText);
+  } catch (error) {
+    console.error('Error parsing PDF:', error);
+    throw new Error('Failed to parse PDF file');
+  }
+};
+
+export const parseDocxResume = async (file: File): Promise<Partial<ResumeData>> => {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const text = result.value;
+    
+    return parseTextResume(text);
+  } catch (error) {
+    console.error('Error parsing DOCX:', error);
+    throw new Error('Failed to parse DOCX file');
+  }
+};
 
 export const parseTextResume = (text: string): Partial<ResumeData> => {
   const lines = text.split('\n').map(line => line.trim()).filter(line => line);
@@ -49,6 +90,8 @@ export const parseTextResume = (text: string): Partial<ResumeData> => {
     if (nameParts.length >= 2) {
       result.personalInfo!.firstName = nameParts[0];
       result.personalInfo!.lastName = nameParts.slice(1).join(' ');
+    } else if (nameParts.length === 1) {
+      result.personalInfo!.firstName = nameParts[0];
     }
   }
 
@@ -57,19 +100,19 @@ export const parseTextResume = (text: string): Partial<ResumeData> => {
     const lowerLine = line.toLowerCase();
     
     // Detect section headers
-    if (lowerLine.includes('summary') || lowerLine.includes('objective') || lowerLine.includes('profile')) {
+    if (lowerLine.includes('summary') || lowerLine.includes('objective') || lowerLine.includes('profile') || lowerLine.includes('about')) {
       currentSection = 'summary';
       buffer = [];
       continue;
-    } else if (lowerLine.includes('experience') || lowerLine.includes('employment') || lowerLine.includes('work history')) {
+    } else if (lowerLine.includes('experience') || lowerLine.includes('employment') || lowerLine.includes('work history') || lowerLine.includes('work experience')) {
       currentSection = 'experience';
       buffer = [];
       continue;
-    } else if (lowerLine.includes('education') || lowerLine.includes('academic')) {
+    } else if (lowerLine.includes('education') || lowerLine.includes('academic') || lowerLine.includes('qualification')) {
       currentSection = 'education';
       buffer = [];
       continue;
-    } else if (lowerLine.includes('skill') || lowerLine.includes('technical')) {
+    } else if (lowerLine.includes('skill') || lowerLine.includes('technical') || lowerLine.includes('competenc')) {
       currentSection = 'skills';
       buffer = [];
       continue;
@@ -77,12 +120,16 @@ export const parseTextResume = (text: string): Partial<ResumeData> => {
       currentSection = 'projects';
       buffer = [];
       continue;
-    } else if (lowerLine.includes('certification') || lowerLine.includes('license')) {
+    } else if (lowerLine.includes('certification') || lowerLine.includes('license') || lowerLine.includes('credential')) {
       currentSection = 'certifications';
       buffer = [];
       continue;
     } else if (lowerLine.includes('language')) {
       currentSection = 'languages';
+      buffer = [];
+      continue;
+    } else if (lowerLine.includes('interest') || lowerLine.includes('hobbi')) {
+      currentSection = 'interests';
       buffer = [];
       continue;
     }
@@ -96,14 +143,28 @@ export const parseTextResume = (text: string): Partial<ResumeData> => {
       const skillMatch = line.match(/[-•*]?\s*(.+)/);
       if (skillMatch) {
         const skillText = skillMatch[1];
-        skillText.split(/[,;]/).forEach(skill => {
+        skillText.split(/[,;|]/).forEach(skill => {
           const trimmed = skill.trim();
-          if (trimmed && result.skills) {
+          if (trimmed && result.skills && trimmed.length > 1 && trimmed.length < 50) {
             result.skills.push({
               id: Date.now().toString() + Math.random(),
               name: trimmed,
               level: 'Intermediate',
               category: 'Technical'
+            });
+          }
+        });
+      }
+    } else if (currentSection === 'interests') {
+      const interestMatch = line.match(/[-•*]?\s*(.+)/);
+      if (interestMatch) {
+        const interestText = interestMatch[1];
+        interestText.split(/[,;|]/).forEach(interest => {
+          const trimmed = interest.trim();
+          if (trimmed && result.interests && trimmed.length > 1 && trimmed.length < 50) {
+            result.interests.push({
+              id: Date.now().toString() + Math.random(),
+              name: trimmed
             });
           }
         });
