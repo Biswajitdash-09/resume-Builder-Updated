@@ -204,6 +204,18 @@ export const ATSTemplate: React.FC<ATSTemplateProps> = ({ data, theme }) => {
           </div>
         </section>
       )}
+
+      {/* Interests */}
+      {data.interests.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-xl font-bold mb-2 uppercase" style={{ color: '#000000', borderBottom: '2px solid #000000' }}>
+            Interests
+          </h2>
+          <div className="text-sm" style={{ color: '#333333' }}>
+            {data.interests.map(interest => interest.name).join(' | ')}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

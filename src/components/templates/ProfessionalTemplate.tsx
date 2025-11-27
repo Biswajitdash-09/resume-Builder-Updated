@@ -216,6 +216,78 @@ export const ProfessionalTemplate: React.FC<ProfessionalTemplateProps> = ({ data
           </div>
         </div>
       )}
+
+      {/* Certifications */}
+      {data.certifications.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-3 uppercase" style={{ color: theme.primary }}>
+            Certifications
+          </h2>
+          <div className="space-y-2">
+            {data.certifications.map((cert) => (
+              <div key={cert.id}>
+                <h3 className="font-bold text-base" style={{ color: theme.textPrimary }}>
+                  {cert.name}
+                </h3>
+                <p className="text-sm" style={{ color: theme.accent }}>
+                  {cert.issuer} • {cert.date}
+                </p>
+                {cert.credentialId && (
+                  <p className="text-xs" style={{ color: theme.textSecondary }}>
+                    Credential ID: {cert.credentialId}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Languages */}
+      {data.languages.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-3 uppercase" style={{ color: theme.primary }}>
+            Languages
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {data.languages.map((lang) => (
+              <span
+                key={lang.id}
+                className="px-3 py-1 text-sm rounded-full"
+                style={{ 
+                  backgroundColor: `${theme.accent}20`,
+                  color: theme.textPrimary
+                }}
+              >
+                {lang.name} ({lang.proficiency})
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Interests */}
+      {data.interests.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-3 uppercase" style={{ color: theme.primary }}>
+            Interests
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {data.interests.map((interest) => (
+              <span
+                key={interest.id}
+                className="px-3 py-1 text-sm rounded"
+                style={{ 
+                  backgroundColor: `${theme.primary}10`,
+                  color: theme.textSecondary
+                }}
+              >
+                {interest.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
