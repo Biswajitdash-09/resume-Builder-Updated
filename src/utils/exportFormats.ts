@@ -136,6 +136,87 @@ export const exportToDocx = async (data: ResumeData) => {
             text: data.skills.map(s => s.name).join(' • '),
             spacing: { after: 200 }
           })
+        ] : []),
+
+        // Projects
+        ...(data.projects.length > 0 ? [
+          new Paragraph({
+            text: 'PROJECTS',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 200, after: 100 },
+            border: {
+              bottom: {
+                color: '000000',
+                space: 1,
+                style: 'single',
+                size: 6
+              }
+            }
+          }),
+          ...data.projects.flatMap(project => [
+            new Paragraph({
+              spacing: { before: 100, after: 50 },
+              children: [
+                new TextRun({ text: project.name, bold: true, size: 24 }),
+              ]
+            }),
+            new Paragraph({
+              text: project.description,
+              spacing: { after: 50 }
+            }),
+            new Paragraph({
+              text: `Technologies: ${project.technologies.join(', ')}`,
+              spacing: { after: 200 }
+            })
+          ])
+        ] : []),
+
+        // Certifications
+        ...(data.certifications.length > 0 ? [
+          new Paragraph({
+            text: 'CERTIFICATIONS',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 200, after: 100 },
+            border: {
+              bottom: {
+                color: '000000',
+                space: 1,
+                style: 'single',
+                size: 6
+              }
+            }
+          }),
+          ...data.certifications.flatMap(cert => [
+            new Paragraph({
+              spacing: { before: 100, after: 50 },
+              children: [
+                new TextRun({ text: cert.name, bold: true }),
+                new TextRun({ text: ` - ${cert.issuer}` }),
+                new TextRun({ text: ` | ${cert.date}` })
+              ]
+            })
+          ])
+        ] : []),
+
+        // Languages
+        ...(data.languages.length > 0 ? [
+          new Paragraph({
+            text: 'LANGUAGES',
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 200, after: 100 },
+            border: {
+              bottom: {
+                color: '000000',
+                space: 1,
+                style: 'single',
+                size: 6
+              }
+            }
+          }),
+          new Paragraph({
+            text: data.languages.map(lang => `${lang.name}: ${lang.proficiency}`).join(' | '),
+            spacing: { after: 200 }
+          })
         ] : [])
       ]
     }]
