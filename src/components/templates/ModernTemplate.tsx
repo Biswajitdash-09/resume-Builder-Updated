@@ -228,8 +228,46 @@ export const ModernTemplate: React.FC<ModernTemplateProps> = ({ data, theme }) =
               </div>
             </div>
           )}
+
+          {/* Certifications */}
+          {data.certifications.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-bold mb-3" style={{ color: theme.accent }}>
+                Certifications
+              </h2>
+              <div className="space-y-2">
+                {data.certifications.map((cert) => (
+                  <div key={cert.id}>
+                    <h3 className="font-bold text-sm">{cert.name}</h3>
+                    <p className="text-xs" style={{ color: theme.textSecondary }}>
+                      {cert.issuer} • {cert.date}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Interests in sidebar */}
+      {data.interests.length > 0 && (
+        <div className="px-6 pb-6" style={{ backgroundColor: theme.primary, color: 'white' }}>
+          <h2 className="text-lg font-bold mb-3 pb-2 border-b border-white/30">
+            Interests
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {data.interests.map((interest) => (
+              <span
+                key={interest.id}
+                className="text-xs px-2 py-1 rounded bg-white/20"
+              >
+                {interest.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

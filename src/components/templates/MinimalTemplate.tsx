@@ -194,6 +194,39 @@ export const MinimalTemplate: React.FC<MinimalTemplateProps> = ({ data, theme })
           </p>
         </div>
       )}
+
+      {/* Certifications */}
+      {data.certifications.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-sm font-bold mb-4 tracking-wider uppercase" style={{ color: theme.primary }}>
+            Certifications
+          </h2>
+          <div className="space-y-2">
+            {data.certifications.map((cert) => (
+              <div key={cert.id}>
+                <span className="font-semibold text-sm" style={{ color: theme.textPrimary }}>
+                  {cert.name}
+                </span>
+                <span className="text-sm" style={{ color: theme.textSecondary }}>
+                  {' '}— {cert.issuer}, {cert.date}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Interests */}
+      {data.interests.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-sm font-bold mb-4 tracking-wider uppercase" style={{ color: theme.primary }}>
+            Interests
+          </h2>
+          <p className="text-sm" style={{ color: theme.textPrimary }}>
+            {data.interests.map((interest) => interest.name).join(' • ')}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
