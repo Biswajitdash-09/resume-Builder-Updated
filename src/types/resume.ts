@@ -7,6 +7,14 @@ export interface PersonalInfo {
   linkedin: string;
   github: string;
   address: string;
+  title?: string;
+  website?: string;
+  portfolio?: string;
+  twitter?: string;
+  photo?: string;
+  showPhoto: boolean;
+  photoShape: 'circle' | 'rounded' | 'square';
+  photoSize: 'small' | 'medium' | 'large';
 }
 
 export interface Education {
@@ -70,6 +78,49 @@ export interface Interest {
   name: string;
 }
 
+export interface Award {
+  id: string;
+  title: string;
+  issuer: string;
+  date: string;
+  description?: string;
+}
+
+export interface Publication {
+  id: string;
+  title: string;
+  publisher: string;
+  date: string;
+  link?: string;
+  authors?: string;
+}
+
+export interface VolunteerExperience {
+  id: string;
+  organization: string;
+  role: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  description: string;
+}
+
+export interface Reference {
+  id: string;
+  name: string;
+  title: string;
+  company: string;
+  email?: string;
+  phone?: string;
+  relationship: string;
+}
+
+export interface CustomSection {
+  id: string;
+  title: string;
+  content: string;
+}
+
 export interface ColorTheme {
   primary: string;
   accent: string;
@@ -78,6 +129,28 @@ export interface ColorTheme {
   borderStyle: 'none' | 'thin' | 'medium' | 'thick';
   borderColor: string;
   borderRadius: number;
+  fontFamily: 'Inter' | 'Roboto' | 'Open Sans' | 'Lato' | 'Poppins' | 'Playfair Display' | 'Merriweather';
+  fontSize: 'small' | 'medium' | 'large';
+  headingSize: 'small' | 'medium' | 'large';
+  lineHeight: 'compact' | 'normal' | 'relaxed';
+  sectionDivider: 'none' | 'line' | 'dotted' | 'dashed';
+  headerUnderline: boolean;
+}
+
+export interface SectionVisibility {
+  summary: boolean;
+  experience: boolean;
+  education: boolean;
+  skills: boolean;
+  projects: boolean;
+  certifications: boolean;
+  languages: boolean;
+  interests: boolean;
+  awards: boolean;
+  publications: boolean;
+  volunteer: boolean;
+  references: boolean;
+  customSections: boolean;
 }
 
 export interface ResumeData {
@@ -90,4 +163,11 @@ export interface ResumeData {
   certifications: Certification[];
   languages: Language[];
   interests: Interest[];
+  awards: Award[];
+  publications: Publication[];
+  volunteer: VolunteerExperience[];
+  references: Reference[];
+  customSections: CustomSection[];
+  sectionVisibility: SectionVisibility;
+  sectionOrder: string[];
 }

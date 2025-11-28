@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Moon, Sun, Download, Save, Eye, EyeOff, Upload, FileJson, Trash2, Palette, Layers } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Moon, Sun, Save, Eye, EyeOff, Trash2, Palette, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,21 +24,25 @@ import { ProjectsForm } from './forms/ProjectsForm';
 import { CertificationsForm } from './forms/CertificationsForm';
 import { LanguagesForm } from './forms/LanguagesForm';
 import { InterestsForm } from './forms/InterestsForm';
+import { AwardsForm } from './forms/AwardsForm';
+import { PublicationsForm } from './forms/PublicationsForm';
+import { VolunteerForm } from './forms/VolunteerForm';
+import { ReferencesForm } from './forms/ReferencesForm';
+import { CustomSectionForm } from './forms/CustomSectionForm';
 import { ResumePreview } from './ResumePreview';
 import { TemplateSelector } from './TemplateSelector';
 import { ColorCustomizer } from './ColorCustomizer';
-import { ColorTheme } from '../types/resume';
-import { ResumeData } from '../types/resume';
-import { exportToPDF } from '../utils/pdfExport';
+import { SectionManager } from './SectionManager';
+import { ColorTheme, ResumeData, SectionVisibility } from '../types/resume';
 import { useToast } from '@/hooks/use-toast';
 import { ImportResumeDialog } from './ImportResumeDialog';
 import { ExportDropdown } from './ExportDropdown';
+import { sampleResumeData, getEmptyResumeData } from '../utils/sampleData';
+
 export const ResumeBuilder = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [showClearDialog, setShowClearDialog] = useState(false);
-  const [showCustomizer, setShowCustomizer] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<'professional' | 'modern' | 'minimal' | 'ats'>('professional');
   const [colorTheme, setColorTheme] = useState<ColorTheme>({
     primary: '#2563eb',
@@ -47,27 +52,15 @@ export const ResumeBuilder = () => {
     borderStyle: 'thin',
     borderColor: '#e2e8f0',
     borderRadius: 8,
+    fontFamily: 'Inter',
+    fontSize: 'medium',
+    headingSize: 'medium',
+    lineHeight: 'normal',
+    sectionDivider: 'none',
+    headerUnderline: true,
   });
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [resumeData, setResumeData] = useState<ResumeData>({
-    personalInfo: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      linkedin: '',
-      github: '',
-      address: ''
-    },
-    summary: '',
-    education: [],
-    experience: [],
-    skills: [],
-    projects: [],
-    certifications: [],
-    languages: [],
-    interests: []
-  });
+
+  const [resumeData, setResumeData] = useState<ResumeData>(getEmptyResumeData());
   const { toast } = useToast();
 
   // Load data from localStorage on component mount
@@ -75,7 +68,21 @@ export const ResumeBuilder = () => {
     const savedData = localStorage.getItem('resumeData');
     if (savedData) {
       try {
-        setResumeData(JSON.parse(savedData));
+        const parsed = JSON.parse(savedData);
+        // Merge with empty data to ensure all new fields exist
+        setResumeData({
+          ...getEmptyResumeData(),
+          ...parsed,
+          personalInfo: {
+            ...getEmptyResumeData().personalInfo,
+            ...parsed.personalInfo,
+          },
+          sectionVisibility: {
+            ...getEmptyResumeData().sectionVisibility,
+            ...parsed.sectionVisibility,
+          },
+          sectionOrder: parsed.sectionOrder || getEmptyResumeData().sectionOrder,
+        });
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -98,6 +105,7 @@ export const ResumeBuilder = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
   const handleSave = () => {
     localStorage.setItem('resumeData', JSON.stringify(resumeData));
     toast({
@@ -106,59 +114,13 @@ export const ResumeBuilder = () => {
     });
   };
 
-  const handleExportPDF = async () => {
-    try {
-      setIsExporting(true);
-      console.log('Export PDF clicked');
-      await exportToPDF(resumeData);
-      toast({
-        title: "PDF Downloaded",
-        description: "Your resume has been downloaded successfully!"
-      });
-    } catch (error) {
-      console.error('PDF export failed:', error);
-      toast({
-        title: "Export Failed",
-        description: "There was an error downloading your resume. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportJSON = () => {
-    try {
-      const dataStr = JSON.stringify(resumeData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `resume-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: "JSON Exported",
-        description: "Your resume data has been downloaded as JSON!"
-      });
-    } catch (error) {
-      toast({
-        title: "Export Failed",
-        description: "Failed to export JSON file.",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleImportResume = (importedData: Partial<ResumeData>) => {
-    // Merge imported data with existing data structure
     const mergedData = {
+      ...getEmptyResumeData(),
       ...resumeData,
       ...importedData,
       personalInfo: {
+        ...getEmptyResumeData().personalInfo,
         ...resumeData.personalInfo,
         ...importedData.personalInfo,
       },
@@ -168,27 +130,7 @@ export const ResumeBuilder = () => {
   };
 
   const handleClearAll = () => {
-    const emptyData: ResumeData = {
-      personalInfo: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        linkedin: '',
-        github: '',
-        address: ''
-      },
-      summary: '',
-      education: [],
-      experience: [],
-      skills: [],
-      projects: [],
-      certifications: [],
-      languages: [],
-      interests: []
-    };
-    
-    setResumeData(emptyData);
+    setResumeData(getEmptyResumeData());
     localStorage.removeItem('resumeData');
     setShowClearDialog(false);
     
@@ -198,10 +140,33 @@ export const ResumeBuilder = () => {
     });
   };
 
+  const handleLoadSampleData = () => {
+    setResumeData(sampleResumeData);
+    localStorage.setItem('resumeData', JSON.stringify(sampleResumeData));
+    toast({
+      title: "Sample Data Loaded",
+      description: "Sample resume data has been loaded. Feel free to edit!"
+    });
+  };
+
   const updateResumeData = (section: keyof ResumeData, data: any) => {
     setResumeData(prev => ({
       ...prev,
       [section]: data
+    }));
+  };
+
+  const handleVisibilityChange = (visibility: SectionVisibility) => {
+    setResumeData(prev => ({
+      ...prev,
+      sectionVisibility: visibility
+    }));
+  };
+
+  const handleOrderChange = (order: string[]) => {
+    setResumeData(prev => ({
+      ...prev,
+      sectionOrder: order
     }));
   };
 
@@ -224,6 +189,17 @@ export const ResumeBuilder = () => {
               >
                 {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
+
+              {/* Sample Data Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLoadSampleData}
+                className="hidden sm:inline-flex transition-all duration-200 hover:scale-105"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Sample
+              </Button>
               
               {/* Template & Color Customizer */}
               <Sheet>
@@ -241,18 +217,37 @@ export const ResumeBuilder = () => {
                   <SheetHeader>
                     <SheetTitle>Customize Resume</SheetTitle>
                     <SheetDescription>
-                      Choose a template and customize colors
+                      Choose a template, customize colors, fonts, and manage sections
                     </SheetDescription>
                   </SheetHeader>
-                  <div className="mt-6 space-y-6">
-                    <TemplateSelector 
-                      selectedTemplate={selectedTemplate}
-                      onSelectTemplate={setSelectedTemplate}
-                    />
-                    <ColorCustomizer 
-                      theme={colorTheme}
-                      onThemeChange={setColorTheme}
-                    />
+                  <div className="mt-6">
+                    <Tabs defaultValue="template" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="template">Template</TabsTrigger>
+                        <TabsTrigger value="style">Style</TabsTrigger>
+                        <TabsTrigger value="sections">Sections</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="template" className="mt-4">
+                        <TemplateSelector 
+                          selectedTemplate={selectedTemplate}
+                          onSelectTemplate={setSelectedTemplate}
+                        />
+                      </TabsContent>
+                      <TabsContent value="style" className="mt-4">
+                        <ColorCustomizer 
+                          theme={colorTheme}
+                          onThemeChange={setColorTheme}
+                        />
+                      </TabsContent>
+                      <TabsContent value="sections" className="mt-4">
+                        <SectionManager
+                          visibility={resumeData.sectionVisibility}
+                          sectionOrder={resumeData.sectionOrder}
+                          onVisibilityChange={handleVisibilityChange}
+                          onOrderChange={handleOrderChange}
+                        />
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -262,7 +257,6 @@ export const ResumeBuilder = () => {
               
               {/* Export Dropdown */}
               <ExportDropdown data={resumeData} />
-              
               
               {/* Save Draft */}
               <Button onClick={handleSave} className="transition-all duration-200 hover:scale-105">
@@ -301,37 +295,83 @@ export const ResumeBuilder = () => {
               <PersonalInfoForm data={resumeData.personalInfo} onChange={data => updateResumeData('personalInfo', data)} />
             </Card>
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.1s' }}>
-              <SummaryForm data={resumeData.summary} onChange={data => updateResumeData('summary', data)} />
-            </Card>
+            {resumeData.sectionVisibility.summary && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <SummaryForm data={resumeData.summary} onChange={data => updateResumeData('summary', data)} />
+              </Card>
+            )}
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.2s' }}>
-              <EducationForm data={resumeData.education} onChange={data => updateResumeData('education', data)} />
-            </Card>
+            {resumeData.sectionVisibility.experience && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <ExperienceForm data={resumeData.experience} onChange={data => updateResumeData('experience', data)} />
+              </Card>
+            )}
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.3s' }}>
-              <ExperienceForm data={resumeData.experience} onChange={data => updateResumeData('experience', data)} />
-            </Card>
+            {resumeData.sectionVisibility.education && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <EducationForm data={resumeData.education} onChange={data => updateResumeData('education', data)} />
+              </Card>
+            )}
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.4s' }}>
-              <SkillsForm data={resumeData.skills} onChange={data => updateResumeData('skills', data)} />
-            </Card>
+            {resumeData.sectionVisibility.skills && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <SkillsForm data={resumeData.skills} onChange={data => updateResumeData('skills', data)} />
+              </Card>
+            )}
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.5s' }}>
-              <ProjectsForm data={resumeData.projects} onChange={data => updateResumeData('projects', data)} />
-            </Card>
+            {resumeData.sectionVisibility.projects && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <ProjectsForm data={resumeData.projects} onChange={data => updateResumeData('projects', data)} />
+              </Card>
+            )}
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.6s' }}>
-              <CertificationsForm data={resumeData.certifications} onChange={data => updateResumeData('certifications', data)} />
-            </Card>
+            {resumeData.sectionVisibility.certifications && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <CertificationsForm data={resumeData.certifications} onChange={data => updateResumeData('certifications', data)} />
+              </Card>
+            )}
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.7s' }}>
-              <LanguagesForm data={resumeData.languages} onChange={data => updateResumeData('languages', data)} />
-            </Card>
+            {resumeData.sectionVisibility.awards && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <AwardsForm data={resumeData.awards} onChange={data => updateResumeData('awards', data)} />
+              </Card>
+            )}
 
-            <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50" style={{ animationDelay: '0.8s' }}>
-              <InterestsForm data={resumeData.interests} onChange={data => updateResumeData('interests', data)} />
-            </Card>
+            {resumeData.sectionVisibility.publications && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <PublicationsForm data={resumeData.publications} onChange={data => updateResumeData('publications', data)} />
+              </Card>
+            )}
+
+            {resumeData.sectionVisibility.volunteer && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <VolunteerForm data={resumeData.volunteer} onChange={data => updateResumeData('volunteer', data)} />
+              </Card>
+            )}
+
+            {resumeData.sectionVisibility.languages && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <LanguagesForm data={resumeData.languages} onChange={data => updateResumeData('languages', data)} />
+              </Card>
+            )}
+
+            {resumeData.sectionVisibility.interests && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <InterestsForm data={resumeData.interests} onChange={data => updateResumeData('interests', data)} />
+              </Card>
+            )}
+
+            {resumeData.sectionVisibility.references && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <ReferencesForm data={resumeData.references} onChange={data => updateResumeData('references', data)} />
+              </Card>
+            )}
+
+            {resumeData.sectionVisibility.customSections && (
+              <Card className="p-6 animate-fade-in hover:shadow-lg transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50">
+                <CustomSectionForm data={resumeData.customSections} onChange={data => updateResumeData('customSections', data)} />
+              </Card>
+            )}
           </div>
 
           {/* Preview Section */}

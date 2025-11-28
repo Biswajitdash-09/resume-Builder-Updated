@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PersonalInfo } from '../../types/resume';
+import { PhotoUploader } from '../PhotoUploader';
 
 interface PersonalInfoFormProps {
   data: PersonalInfo;
@@ -10,7 +10,7 @@ interface PersonalInfoFormProps {
 }
 
 export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChange }) => {
-  const handleChange = (field: keyof PersonalInfo, value: string) => {
+  const handleChange = (field: keyof PersonalInfo, value: string | boolean) => {
     onChange({
       ...data,
       [field]: value
@@ -20,6 +20,18 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Personal Information</h3>
+      
+      {/* Photo Upload */}
+      <PhotoUploader
+        photo={data.photo}
+        showPhoto={data.showPhoto}
+        photoShape={data.photoShape}
+        photoSize={data.photoSize}
+        onPhotoChange={(photo) => handleChange('photo', photo || '')}
+        onShowPhotoChange={(show) => handleChange('showPhoto', show)}
+        onPhotoShapeChange={(shape) => handleChange('photoShape', shape)}
+        onPhotoSizeChange={(size) => handleChange('photoSize', size)}
+      />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -43,6 +55,16 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
             required
           />
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="title">Professional Title</Label>
+        <Input
+          id="title"
+          value={data.title || ''}
+          onChange={(e) => handleChange('title', e.target.value)}
+          placeholder="Senior Software Engineer"
+        />
       </div>
 
       <div>
@@ -85,6 +107,36 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
           value={data.github}
           onChange={(e) => handleChange('github', e.target.value)}
           placeholder="github.com/johndoe"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="website">Personal Website</Label>
+        <Input
+          id="website"
+          value={data.website || ''}
+          onChange={(e) => handleChange('website', e.target.value)}
+          placeholder="johndoe.dev"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="portfolio">Portfolio</Label>
+        <Input
+          id="portfolio"
+          value={data.portfolio || ''}
+          onChange={(e) => handleChange('portfolio', e.target.value)}
+          placeholder="portfolio.johndoe.com"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="twitter">Twitter / X</Label>
+        <Input
+          id="twitter"
+          value={data.twitter || ''}
+          onChange={(e) => handleChange('twitter', e.target.value)}
+          placeholder="@johndoe"
         />
       </div>
 
