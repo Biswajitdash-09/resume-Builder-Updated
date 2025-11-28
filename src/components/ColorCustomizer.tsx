@@ -2,18 +2,16 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Palette } from 'lucide-react';
-
-export interface ColorTheme {
-  primary: string;
-  accent: string;
-  textPrimary: string;
-  textSecondary: string;
-  borderStyle: 'none' | 'thin' | 'medium' | 'thick';
-  borderColor: string;
-  borderRadius: number;
-}
+import { Switch } from '@/components/ui/switch';
+import { Palette, Type, Minus } from 'lucide-react';
+import { ColorTheme } from '../types/resume';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ColorCustomizerProps {
   theme: ColorTheme;
@@ -31,6 +29,12 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       borderStyle: 'thin',
       borderColor: '#e2e8f0',
       borderRadius: 8,
+      fontFamily: 'Inter',
+      fontSize: 'medium',
+      headingSize: 'medium',
+      lineHeight: 'normal',
+      sectionDivider: 'none',
+      headerUnderline: true,
     },
   },
   {
@@ -43,6 +47,12 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       borderStyle: 'medium',
       borderColor: '#ddd6fe',
       borderRadius: 12,
+      fontFamily: 'Playfair Display',
+      fontSize: 'medium',
+      headingSize: 'large',
+      lineHeight: 'relaxed',
+      sectionDivider: 'line',
+      headerUnderline: true,
     },
   },
   {
@@ -55,6 +65,12 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       borderStyle: 'thin',
       borderColor: '#d1fae5',
       borderRadius: 8,
+      fontFamily: 'Poppins',
+      fontSize: 'medium',
+      headingSize: 'medium',
+      lineHeight: 'normal',
+      sectionDivider: 'dotted',
+      headerUnderline: false,
     },
   },
   {
@@ -67,6 +83,48 @@ const presetThemes: { name: string; theme: ColorTheme }[] = [
       borderStyle: 'thick',
       borderColor: '#fed7aa',
       borderRadius: 16,
+      fontFamily: 'Lato',
+      fontSize: 'medium',
+      headingSize: 'large',
+      lineHeight: 'relaxed',
+      sectionDivider: 'dashed',
+      headerUnderline: true,
+    },
+  },
+  {
+    name: 'Classic Serif',
+    theme: {
+      primary: '#1f2937',
+      accent: '#4b5563',
+      textPrimary: '#111827',
+      textSecondary: '#6b7280',
+      borderStyle: 'thin',
+      borderColor: '#d1d5db',
+      borderRadius: 0,
+      fontFamily: 'Merriweather',
+      fontSize: 'medium',
+      headingSize: 'medium',
+      lineHeight: 'relaxed',
+      sectionDivider: 'line',
+      headerUnderline: true,
+    },
+  },
+  {
+    name: 'Minimal Clean',
+    theme: {
+      primary: '#0f172a',
+      accent: '#334155',
+      textPrimary: '#0f172a',
+      textSecondary: '#475569',
+      borderStyle: 'none',
+      borderColor: '#e2e8f0',
+      borderRadius: 4,
+      fontFamily: 'Open Sans',
+      fontSize: 'small',
+      headingSize: 'medium',
+      lineHeight: 'compact',
+      sectionDivider: 'none',
+      headerUnderline: false,
     },
   },
 ];
@@ -75,15 +133,15 @@ export const ColorCustomizer: React.FC<ColorCustomizerProps> = ({
   theme,
   onThemeChange,
 }) => {
-  const handleColorChange = (key: keyof ColorTheme, value: string | number) => {
+  const handleChange = (key: keyof ColorTheme, value: string | number | boolean) => {
     onThemeChange({ ...theme, [key]: value });
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Palette className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">Color Customization</h3>
+        <h3 className="text-lg font-semibold">Theme & Styling</h3>
       </div>
 
       {/* Preset Themes */}
@@ -110,120 +168,225 @@ export const ColorCustomizer: React.FC<ColorCustomizerProps> = ({
         </div>
       </div>
 
-      {/* Custom Colors */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="primary-color" className="text-sm">
-            Primary Color
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="primary-color"
-              type="color"
-              value={theme.primary}
-              onChange={(e) => handleColorChange('primary', e.target.value)}
-              className="w-12 h-10 p-1 cursor-pointer"
-            />
-            <Input
-              type="text"
-              value={theme.primary}
-              onChange={(e) => handleColorChange('primary', e.target.value)}
-              className="flex-1 text-xs"
-            />
-          </div>
+      {/* Font Customization */}
+      <div className="space-y-4 pt-4 border-t">
+        <div className="flex items-center gap-2">
+          <Type className="h-4 w-4 text-primary" />
+          <Label className="text-sm font-medium">Typography</Label>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="accent-color" className="text-sm">
-            Accent Color
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="accent-color"
-              type="color"
-              value={theme.accent}
-              onChange={(e) => handleColorChange('accent', e.target.value)}
-              className="w-12 h-10 p-1 cursor-pointer"
-            />
-            <Input
-              type="text"
-              value={theme.accent}
-              onChange={(e) => handleColorChange('accent', e.target.value)}
-              className="flex-1 text-xs"
-            />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Font Family</Label>
+            <Select
+              value={theme.fontFamily}
+              onValueChange={(v) => handleChange('fontFamily', v)}
+            >
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Inter">Inter</SelectItem>
+                <SelectItem value="Roboto">Roboto</SelectItem>
+                <SelectItem value="Open Sans">Open Sans</SelectItem>
+                <SelectItem value="Lato">Lato</SelectItem>
+                <SelectItem value="Poppins">Poppins</SelectItem>
+                <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+                <SelectItem value="Merriweather">Merriweather</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Font Size</Label>
+            <Select
+              value={theme.fontSize}
+              onValueChange={(v) => handleChange('fontSize', v)}
+            >
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Heading Size</Label>
+            <Select
+              value={theme.headingSize}
+              onValueChange={(v) => handleChange('headingSize', v)}
+            >
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Line Height</Label>
+            <Select
+              value={theme.lineHeight}
+              onValueChange={(v) => handleChange('lineHeight', v)}
+            >
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="compact">Compact</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="relaxed">Relaxed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="text-primary" className="text-sm">
-            Text Primary
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="text-primary"
-              type="color"
-              value={theme.textPrimary}
-              onChange={(e) => handleColorChange('textPrimary', e.target.value)}
-              className="w-12 h-10 p-1 cursor-pointer"
-            />
-            <Input
-              type="text"
-              value={theme.textPrimary}
-              onChange={(e) => handleColorChange('textPrimary', e.target.value)}
-              className="flex-1 text-xs"
-            />
+      {/* Colors */}
+      <div className="space-y-4 pt-4 border-t">
+        <Label className="text-sm font-medium">Colors</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="primary-color" className="text-xs text-muted-foreground">
+              Primary Color
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="primary-color"
+                type="color"
+                value={theme.primary}
+                onChange={(e) => handleChange('primary', e.target.value)}
+                className="w-10 h-9 p-1 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={theme.primary}
+                onChange={(e) => handleChange('primary', e.target.value)}
+                className="flex-1 text-xs h-9"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="text-secondary" className="text-sm">
-            Text Secondary
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="text-secondary"
-              type="color"
-              value={theme.textSecondary}
-              onChange={(e) =>
-                handleColorChange('textSecondary', e.target.value)
-              }
-              className="w-12 h-10 p-1 cursor-pointer"
-            />
-            <Input
-              type="text"
-              value={theme.textSecondary}
-              onChange={(e) =>
-                handleColorChange('textSecondary', e.target.value)
-              }
-              className="flex-1 text-xs"
-            />
+          <div className="space-y-2">
+            <Label htmlFor="accent-color" className="text-xs text-muted-foreground">
+              Accent Color
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="accent-color"
+                type="color"
+                value={theme.accent}
+                onChange={(e) => handleChange('accent', e.target.value)}
+                className="w-10 h-9 p-1 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={theme.accent}
+                onChange={(e) => handleChange('accent', e.target.value)}
+                className="flex-1 text-xs h-9"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="text-primary" className="text-xs text-muted-foreground">
+              Text Primary
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="text-primary"
+                type="color"
+                value={theme.textPrimary}
+                onChange={(e) => handleChange('textPrimary', e.target.value)}
+                className="w-10 h-9 p-1 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={theme.textPrimary}
+                onChange={(e) => handleChange('textPrimary', e.target.value)}
+                className="flex-1 text-xs h-9"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="text-secondary" className="text-xs text-muted-foreground">
+              Text Secondary
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="text-secondary"
+                type="color"
+                value={theme.textSecondary}
+                onChange={(e) => handleChange('textSecondary', e.target.value)}
+                className="w-10 h-9 p-1 cursor-pointer"
+              />
+              <Input
+                type="text"
+                value={theme.textSecondary}
+                onChange={(e) => handleChange('textSecondary', e.target.value)}
+                className="flex-1 text-xs h-9"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Border Customization */}
       <div className="space-y-4 pt-4 border-t">
-        <Label className="text-sm font-medium">Border Options</Label>
-        
-        <div className="space-y-2">
-          <Label htmlFor="border-style" className="text-sm">
-            Border Style
-          </Label>
-          <select
-            id="border-style"
-            value={theme.borderStyle}
-            onChange={(e) => handleColorChange('borderStyle', e.target.value as any)}
-            className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm"
-          >
-            <option value="none">None</option>
-            <option value="thin">Thin (1px)</option>
-            <option value="medium">Medium (2px)</option>
-            <option value="thick">Thick (4px)</option>
-          </select>
+        <div className="flex items-center gap-2">
+          <Minus className="h-4 w-4 text-primary" />
+          <Label className="text-sm font-medium">Borders & Dividers</Label>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Border Style</Label>
+            <Select
+              value={theme.borderStyle}
+              onValueChange={(v) => handleChange('borderStyle', v)}
+            >
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="thin">Thin (1px)</SelectItem>
+                <SelectItem value="medium">Medium (2px)</SelectItem>
+                <SelectItem value="thick">Thick (4px)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Section Divider</Label>
+            <Select
+              value={theme.sectionDivider}
+              onValueChange={(v) => handleChange('sectionDivider', v)}
+            >
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="line">Solid Line</SelectItem>
+                <SelectItem value="dotted">Dotted</SelectItem>
+                <SelectItem value="dashed">Dashed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="border-color" className="text-sm">
+          <Label htmlFor="border-color" className="text-xs text-muted-foreground">
             Border Color
           </Label>
           <div className="flex gap-2">
@@ -231,20 +394,20 @@ export const ColorCustomizer: React.FC<ColorCustomizerProps> = ({
               id="border-color"
               type="color"
               value={theme.borderColor}
-              onChange={(e) => handleColorChange('borderColor', e.target.value)}
-              className="w-12 h-10 p-1 cursor-pointer"
+              onChange={(e) => handleChange('borderColor', e.target.value)}
+              className="w-10 h-9 p-1 cursor-pointer"
             />
             <Input
               type="text"
               value={theme.borderColor}
-              onChange={(e) => handleColorChange('borderColor', e.target.value)}
-              className="flex-1 text-xs"
+              onChange={(e) => handleChange('borderColor', e.target.value)}
+              className="flex-1 text-xs h-9"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="border-radius" className="text-sm">
+          <Label htmlFor="border-radius" className="text-xs text-muted-foreground">
             Border Radius: {theme.borderRadius}px
           </Label>
           <input
@@ -254,8 +417,19 @@ export const ColorCustomizer: React.FC<ColorCustomizerProps> = ({
             max="32"
             step="2"
             value={theme.borderRadius}
-            onChange={(e) => handleColorChange('borderRadius', parseInt(e.target.value))}
+            onChange={(e) => handleChange('borderRadius', parseInt(e.target.value))}
             className="w-full"
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Label htmlFor="header-underline" className="text-xs text-muted-foreground">
+            Header Underline
+          </Label>
+          <Switch
+            id="header-underline"
+            checked={theme.headerUnderline}
+            onCheckedChange={(checked) => handleChange('headerUnderline', checked)}
           />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { ResumeData } from '../types/resume';
+import { ResumeData, PersonalInfo } from '../types/resume';
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 
@@ -41,18 +41,28 @@ export const parseDocxResume = async (file: File): Promise<Partial<ResumeData>> 
   }
 };
 
+const getDefaultPersonalInfo = (): PersonalInfo => ({
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  linkedin: '',
+  github: '',
+  address: '',
+  title: '',
+  website: '',
+  portfolio: '',
+  twitter: '',
+  photo: '',
+  showPhoto: false,
+  photoShape: 'circle',
+  photoSize: 'medium',
+});
+
 export const parseTextResume = (text: string): Partial<ResumeData> => {
   const lines = text.split('\n').map(line => line.trim()).filter(line => line);
   const result: Partial<ResumeData> = {
-    personalInfo: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      linkedin: '',
-      github: '',
-      address: ''
-    },
+    personalInfo: getDefaultPersonalInfo(),
     summary: '',
     education: [],
     experience: [],
@@ -60,7 +70,12 @@ export const parseTextResume = (text: string): Partial<ResumeData> => {
     projects: [],
     certifications: [],
     languages: [],
-    interests: []
+    interests: [],
+    awards: [],
+    publications: [],
+    volunteer: [],
+    references: [],
+    customSections: [],
   };
 
   let currentSection = '';
@@ -130,6 +145,22 @@ export const parseTextResume = (text: string): Partial<ResumeData> => {
       continue;
     } else if (lowerLine.includes('interest') || lowerLine.includes('hobbi')) {
       currentSection = 'interests';
+      buffer = [];
+      continue;
+    } else if (lowerLine.includes('award') || lowerLine.includes('honor') || lowerLine.includes('achievement')) {
+      currentSection = 'awards';
+      buffer = [];
+      continue;
+    } else if (lowerLine.includes('publication') || lowerLine.includes('research')) {
+      currentSection = 'publications';
+      buffer = [];
+      continue;
+    } else if (lowerLine.includes('volunteer') || lowerLine.includes('community')) {
+      currentSection = 'volunteer';
+      buffer = [];
+      continue;
+    } else if (lowerLine.includes('reference')) {
+      currentSection = 'references';
       buffer = [];
       continue;
     }

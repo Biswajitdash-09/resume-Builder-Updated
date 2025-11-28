@@ -22,6 +22,12 @@ export const ResumePreview = ({ data, template = 'professional', theme }: Resume
     borderStyle: 'thin',
     borderColor: '#e2e8f0',
     borderRadius: 8,
+    fontFamily: 'Inter',
+    fontSize: 'medium',
+    headingSize: 'medium',
+    lineHeight: 'normal',
+    sectionDivider: 'none',
+    headerUnderline: true,
   };
 
   const currentTheme = theme || defaultTheme;
